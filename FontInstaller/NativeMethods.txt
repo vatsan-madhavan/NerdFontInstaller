@@ -1,0 +1,3 @@
+﻿EnumFontFamiliesExW
+GetDC
+DEFAULT_CHARSET

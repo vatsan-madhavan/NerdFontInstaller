@@ -2,4 +2,9 @@
 // Copyright (c) Vatsan Madhavan. All rights reserved.
 // </copyright>
 
-Console.WriteLine("Hello, World!");
+using FontInstaller;
+
+foreach (var fontFace in FontUtils.FontFaces)
+{
+    Console.WriteLine(fontFace);
+}
