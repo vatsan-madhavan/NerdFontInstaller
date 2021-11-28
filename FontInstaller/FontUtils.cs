@@ -16,7 +16,7 @@ namespace FontInstaller
     /// </summary>
     internal static class FontUtils
     {
-        private static readonly HashSet<string> Fonts = new HashSet<string>();
+        private static readonly HashSet<string> Fonts = new ();
         private static readonly IDWriteFactory DWriteFactory;
         private static readonly IDWriteGdiInterop DWriteGdiInterop;
 
@@ -73,12 +73,11 @@ namespace FontInstaller
             }
 
             var faceNames = new List<string>();
-            IDWriteFontFile? dWriteFontFile = null;
             fixed (char* filePath = fontFile)
             {
                 DWriteFactory.CreateFontFileReference(
                     new PCWSTR(filePath),
-                    fontFile: out dWriteFontFile);
+                    fontFile: out IDWriteFontFile dWriteFontFile);
 
                 BOOL isSupportedFontFileType = false;
                 DWRITE_FONT_FILE_TYPE fontFileType = default;
