@@ -99,6 +99,38 @@ namespace FontInstaller
             return faceNames.AsReadOnly();
         }
 
+        /// <summary>
+        /// Checks whether a font file is already installed.
+        /// </summary>
+        /// <param name="fontFile">Path to font file.</param>
+        /// <returns>True if it's already installed; otherwise False.</returns>
+        internal static bool IsInstalled(string fontFile)
+        {
+            fontFile = Path.GetFullPath(fontFile).TrimEnd(Path.PathSeparator);
+            var faceNames = GetFontFaceNames(fontFile);
+            bool isInstalled = false;
+
+            foreach (var faceName in faceNames)
+            {
+                if (!FontFaces.ContainsKey(faceName))
+                {
+                    isInstalled = false;
+                    break;
+                }
+
+                var matches =
+                    FontFaces[faceName]
+                    .Where(path => string.Equals(path, fontFile, StringComparison.CurrentCultureIgnoreCase));
+                isInstalled = matches?.Count() > 0;
+                if (isInstalled)
+                {
+                    break;
+                }
+            }
+
+            return isInstalled;
+        }
+
         private static unsafe IReadOnlyDictionary<string, IReadOnlyList<string>> EnumerateSystemFontFamilies()
         {
             var fontFamilyInfo = new Dictionary<string, IReadOnlyList<string>>();
@@ -139,7 +171,7 @@ namespace FontInstaller
                             fontFile.GetReferenceKey(&referenceKey, &keySize);
 
                             localFontFileLoader.GetFilePathFromKey(referenceKey, keySize, filePath, MAX_PATH);
-                            files.Add(new string(filePath));
+                            files.Add(Path.GetFullPath(new string(filePath)).TrimEnd(Path.PathSeparator));
                         }
                     }
                 }

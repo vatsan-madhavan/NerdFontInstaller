@@ -31,3 +31,16 @@ foreach (var ttf in ttfs)
         Console.WriteLine($"\t{faceName}");
     }
 }
+Console.WriteLine();
+
+var fontFiles = new string[]
+{
+    @"C:\WINDOWS\FONTS\MONTSERRAT-REGULAR.TTF",
+    @"C:\Users\Vatsan\Downloads\CascadiaCode (1)\Caskaydia Cove Nerd Font Complete.ttf",
+};
+
+foreach (var fontFile in fontFiles)
+{
+    var isInstalled = FontUtils.IsInstalled(fontFile);
+    Console.WriteLine($"{fontFile} is installed: {isInstalled}");
+}
