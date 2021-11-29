@@ -31,6 +31,7 @@ foreach (var ttf in ttfs)
         Console.WriteLine($"\t{faceName}");
     }
 }
+
 Console.WriteLine();
 
 var fontFiles = new string[]
