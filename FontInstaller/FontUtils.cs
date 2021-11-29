@@ -4,6 +4,8 @@
 
 namespace FontInstaller
 {
+    using System.Buffers;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using Windows.Win32.Foundation;
@@ -16,7 +18,6 @@ namespace FontInstaller
     /// </summary>
     internal static class FontUtils
     {
-        private static readonly HashSet<string> Fonts = new ();
         private static readonly IDWriteFactory DWriteFactory;
         private static readonly IDWriteGdiInterop DWriteGdiInterop;
 
@@ -25,24 +26,6 @@ namespace FontInstaller
         /// </summary>
         static unsafe FontUtils()
         {
-            var hwnd = new HWND(0);
-            var hdc = GetDC(hwnd);
-            try
-            {
-                var logFont = new LOGFONTW
-                {
-                    lfCharSet = (byte)DEFAULT_CHARSET,
-                    lfFaceName = string.Empty,
-                };
-
-                EnumFontFamiliesEx(hdc, &logFont, EnumProc, new LPARAM(0), 0);
-                FontFaces = Fonts.ToList().AsReadOnly();
-            }
-            finally
-            {
-                ReleaseDC(hwnd, hdc);
-            }
-
             // Init DWriteFactory
             DWriteCreateFactory(
                 DWRITE_FACTORY_TYPE.DWRITE_FACTORY_TYPE_SHARED,
@@ -52,12 +35,14 @@ namespace FontInstaller
 
             DWriteFactory = factory as IDWriteFactory ?? throw new Exception();
             DWriteFactory.GetGdiInterop(out DWriteGdiInterop);
+
+            FontFaces = EnumerateSystemFontFamilies();
         }
 
         /// <summary>
-        /// Gets a list of Font faces available on this system.
+        /// Gets a list of Font faces and corresponding file paths available on this system.
         /// </summary>
-        internal static IReadOnlyList<string> FontFaces { get; }
+        internal static IReadOnlyDictionary<string, IReadOnlyList<string>> FontFaces { get; }
 
         /// <summary>
         /// Gets a list of font-face names from a given font-file.
@@ -114,10 +99,64 @@ namespace FontInstaller
             return faceNames.AsReadOnly();
         }
 
-        private static unsafe int EnumProc(LOGFONTW* logFont, TEXTMETRICW* textMetric, uint dwFlags, LPARAM lParam)
+        private static unsafe IReadOnlyDictionary<string, IReadOnlyList<string>> EnumerateSystemFontFamilies()
         {
-            Fonts.Add(logFont->lfFaceName.ToString());
-            return 1;
+            var fontFamilyInfo = new Dictionary<string, IReadOnlyList<string>>();
+
+            DWriteFactory.GetSystemFontCollection(
+                out IDWriteFontCollection fontCollection,
+                true);
+            var fontFamilyCount = fontCollection.GetFontFamilyCount();
+
+            char* filePath = stackalloc char[(int)MAX_PATH];
+            for (uint i = 0; i < fontFamilyCount; i++)
+            {
+                fontCollection.GetFontFamily(i, out IDWriteFontFamily fontFamily);
+                fontFamily.GetFamilyNames(out IDWriteLocalizedStrings fontFamilyNames);
+                var fontFamilyName = fontFamilyNames.ToUserDefaultLocaleString();
+
+                var files = new List<string>();
+                uint fontCount = fontFamily.GetFontCount();
+                for (uint j = 0; j < fontCount; j++)
+                {
+                    fontFamily.GetFont(j, out var font);
+                    font.CreateFontFace(out var fontFace);
+
+                    uint numberOfFiles = 0;
+                    fontFace.GetFiles(&numberOfFiles, null);
+
+                    var fontFiles = new IDWriteFontFile[numberOfFiles];
+                    fontFace.GetFiles(&numberOfFiles, fontFiles);
+
+                    var fontFileLoaders = new List<IDWriteFontFileLoader>();
+                    foreach (var fontFile in fontFiles)
+                    {
+                        fontFile.GetLoader(out var fontFileLoader);
+                        if (fontFileLoader is IDWriteLocalFontFileLoader localFontFileLoader)
+                        {
+                            void* referenceKey;
+                            uint keySize = 0;
+                            fontFile.GetReferenceKey(&referenceKey, &keySize);
+
+                            localFontFileLoader.GetFilePathFromKey(referenceKey, keySize, filePath, MAX_PATH);
+                            files.Add(new string(filePath));
+                        }
+                    }
+                }
+
+                if (!fontFamilyInfo.ContainsKey(fontFamilyName) ||
+                    fontFamilyInfo[fontFamilyName] == null ||
+                    fontFamilyInfo[fontFamilyName].Count == 0)
+                {
+                    fontFamilyInfo[fontFamilyName] =
+                        files
+                        .Distinct()
+                        .ToList()
+                        .AsReadOnly();
+                }
+            }
+
+            return fontFamilyInfo;
         }
     }
 }

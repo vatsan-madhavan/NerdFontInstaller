@@ -5,10 +5,15 @@
 #pragma warning disable SA1200 // Using directives should be placed correctly
 using FontInstaller;
 
-foreach (var fontFace in FontUtils.FontFaces)
+foreach (var fontFace in FontUtils.FontFaces.Keys)
 {
-    Console.WriteLine(fontFace);
+    Console.WriteLine($"'{fontFace}'");
+    foreach (var fontFile in FontUtils.FontFaces[fontFace])
+    {
+        Console.WriteLine($"\t{fontFile}");
+    }
 }
+Console.WriteLine();
 
 var ttfs = new string[]
 {

@@ -6,6 +6,11 @@
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="NativeMethods\**" />
+	  <EmbeddedResource Remove="NativeMethods\**" />
+	  <None Remove="NativeMethods\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.619-beta">
@@ -20,9 +25,5 @@
 
 	<ItemGroup>
 		<AdditionalFiles Include="stylecop.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="NativeMethods\" />
 	</ItemGroup>
 </Project>

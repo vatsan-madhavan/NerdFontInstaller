@@ -1,7 +1,6 @@
-﻿EnumFontFamiliesExW
-GetDC
-DEFAULT_CHARSET
-AddFontResourceExW
-RemoveFontResourceEx
-IDWriteFactory
+﻿IDWriteFactory
+IDWriteLocalFontFileLoader
 DWriteCreateFactory
+GetUserDefaultLocaleName
+LOCALE_NAME_MAX_LENGTH
+MAX_PATH
