@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
+using System.Linq;
 
 namespace FontInstallerTests
 {
@@ -43,6 +44,18 @@ namespace FontInstallerTests
                         Assert.True(!string.IsNullOrWhiteSpace(faceName), $"A face name for {ttf} was null or empty");
                     });
             }
+        }
+
+        [Fact]
+        public void IsInstalledTest()
+        {
+            var systemFontsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
+            var fontFile = Directory.GetFiles(systemFontsFolder, "*.ttf")?.FirstOrDefault() ?? String.Empty;
+
+            Assert.True(!string.IsNullOrEmpty(fontFile));
+
+            this.output.WriteLine($"Using font file: {fontFile}");
+            Assert.True(FontUtils.IsInstalled(fontFile));
         }
     }
 }
