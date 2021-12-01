@@ -1,22 +1,36 @@
-using FontInstaller;
-using System;
-using System.IO;
-using System.Reflection;
-using Xunit;
-using Xunit.Abstractions;
-using System.Linq;
+// <copyright file="FontUtilTests.cs" company="Vatsan Madhavan">
+// Copyright (c) Vatsan Madhavan. All rights reserved.
+// </copyright>
 
 namespace FontInstallerTests
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using FontInstaller;
+    using Xunit;
+    using Xunit.Abstractions;
+
+    /// <summary>
+    /// Contains tests for <see cref="FontUtils"/>.
+    /// </summary>
     public class FontUtilTests
     {
         private ITestOutputHelper output;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FontUtilTests"/> class.
+        /// </summary>
+        /// <param name="output"><see cref="ITestOutputHelper"/> instance.</param>
         public FontUtilTests(ITestOutputHelper output)
         {
             this.output = output;
         }
 
+        /// <summary>
+        /// Validates <see cref="FontUtils.GetFontFaceNames(string)"/>.
+        /// </summary>
         [Fact]
         public void GetFontFaceNamesTest()
         {
@@ -38,7 +52,7 @@ namespace FontInstallerTests
                 Assert.NotNull(faceNames);
                 Assert.All(
                     faceNames,
-                    (faceName) => 
+                    (faceName) =>
                     {
                         this.output.WriteLine($"\tFaceName = {faceName}");
                         Assert.True(!string.IsNullOrWhiteSpace(faceName), $"A face name for {ttf} was null or empty");
@@ -46,11 +60,14 @@ namespace FontInstallerTests
             }
         }
 
+        /// <summary>
+        /// Tests for <see cref="FontUtils.IsInstalled(string)"/>.
+        /// </summary>
         [Fact]
         public void IsInstalledTest()
         {
             var systemFontsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-            var fontFile = Directory.GetFiles(systemFontsFolder, "*.ttf")?.FirstOrDefault() ?? String.Empty;
+            var fontFile = Directory.GetFiles(systemFontsFolder, "*.ttf")?.FirstOrDefault() ?? string.Empty;
 
             Assert.True(!string.IsNullOrEmpty(fontFile));
 
@@ -58,6 +75,9 @@ namespace FontInstallerTests
             Assert.True(FontUtils.IsInstalled(fontFile));
         }
 
+        /// <summary>
+        /// Tests for <see cref="FontUtils.FontFaces"/>.
+        /// </summary>
         [Fact]
         public void EnumerateFaceNamesTest()
         {
