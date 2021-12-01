@@ -16,7 +16,7 @@ namespace FontInstaller
     /// <summary>
     /// Contains font related functions.
     /// </summary>
-    internal static class FontUtils
+    public static class FontUtils
     {
         private static readonly IDWriteFactory DWriteFactory;
         private static readonly IDWriteGdiInterop DWriteGdiInterop;
@@ -42,7 +42,7 @@ namespace FontInstaller
         /// <summary>
         /// Gets a list of Font faces and corresponding file paths available on this system.
         /// </summary>
-        internal static IReadOnlyDictionary<string, IReadOnlyList<string>> FontFaces { get; }
+        public static IReadOnlyDictionary<string, IReadOnlyList<string>> FontFaces { get; }
 
         /// <summary>
         /// Gets a list of font-face names from a given font-file.
@@ -50,7 +50,7 @@ namespace FontInstaller
         /// <param name="fontFile">Path to font-file.</param>
         /// <returns>A list of font-face names.</returns>
         /// <exception cref="FileNotFoundException">Thrown when <paramref name="fontFile"/> doesn't exist.</exception>
-        internal static unsafe IReadOnlyList<string> GetFontFaceNames(string fontFile)
+        public static unsafe IReadOnlyList<string> GetFontFaceNames(string fontFile)
         {
             if (!File.Exists(fontFile))
             {
@@ -104,7 +104,7 @@ namespace FontInstaller
         /// </summary>
         /// <param name="fontFile">Path to font file.</param>
         /// <returns>True if it's already installed; otherwise False.</returns>
-        internal static bool IsInstalled(string fontFile)
+        public static bool IsInstalled(string fontFile)
         {
             fontFile = Path.GetFullPath(fontFile).TrimEnd(Path.PathSeparator);
             var faceNames = GetFontFaceNames(fontFile);
