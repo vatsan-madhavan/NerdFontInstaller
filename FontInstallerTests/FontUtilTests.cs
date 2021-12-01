@@ -57,5 +57,26 @@ namespace FontInstallerTests
             this.output.WriteLine($"Using font file: {fontFile}");
             Assert.True(FontUtils.IsInstalled(fontFile));
         }
+
+        [Fact]
+        public void EnumerateFaceNamesTest()
+        {
+            Assert.NotNull(FontUtils.FontFaces);
+            Assert.All(
+                FontUtils.FontFaces,
+                (f) =>
+                {
+                    this.output.WriteLine($"Face Name: '{f.Key}'");
+                    Assert.NotNull(f.Value);
+                    Assert.All(
+                        f.Value,
+                        (p) =>
+                        {
+                            Assert.True(!string.IsNullOrEmpty(p));
+                            this.output.WriteLine($"\t{p}");
+                            Assert.True(File.Exists(p));
+                        });
+                });
+        }
     }
 }
